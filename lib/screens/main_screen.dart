@@ -9,7 +9,7 @@ class MainScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: BottomNavigationBarExample());
+    return const BottomNavigationBarExample();
   }
 }
 
@@ -26,8 +26,8 @@ class _BottomNavigationBarExampleState
   int _selectedIndex = 0;
 
   static const List<Widget> _widgetOptions = <Widget>[
-    JournalTab(),
     LogsTab(),
+    JournalTab(),
     SettingsTab(),
   ];
 

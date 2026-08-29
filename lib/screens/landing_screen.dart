@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import "package:flutter_journal_app/screens/login_screen.dart";
 
 import "signup_screen.dart";
-
-import "main_screen.dart";
 
 class LandingScreen extends StatelessWidget {
   const LandingScreen({super.key});
@@ -32,13 +31,12 @@ class LandingScreen extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                Navigator.pushAndRemoveUntil(
+                Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const MainScreen()),
-                  (route) => false, // removes ALL previous routes
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               },
-              child: Text("Skip for now"),
+              child: Text("Already have an account? Login"),
             ),
             Image.asset('assets/images/landing_image.png'),
           ],
