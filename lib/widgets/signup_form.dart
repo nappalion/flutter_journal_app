@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import '../screens/login_screen.dart';
@@ -12,6 +13,7 @@ class SignupForm extends StatefulWidget {
 }
 
 class _SignupFormState extends State<SignupForm> {
+  final db = FirebaseFirestore.instance;
   String email = "";
   String password = "";
   String username = "";
@@ -71,6 +73,23 @@ class _SignupFormState extends State<SignupForm> {
                       email: email,
                       password: password,
                     );
+
+                final user = credential.user;
+                if (user == null) {
+                  setState(() {
+                    errorMessage = "Failed to create account.";
+                  });
+                  return;
+                }
+                await db.collection("users").doc(user.uid).set({
+                  "username": username,
+                  "createdAt": FieldValue.serverTimestamp(),
+                });
+
+                // Same StreamBuilder issue
+                if (context.mounted) {
+                  Navigator.of(context).popUntil((route) => route.isFirst);
+                }
               } on FirebaseAuthException catch (e) {
                 if (e.code == 'weak-password') {
                   setState(() {
