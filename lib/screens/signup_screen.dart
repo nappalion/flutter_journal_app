@@ -10,7 +10,8 @@ class SignupScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Sign Up')),
       body: SafeArea(
-        child: Column(
+        child: const Column(
+          spacing: 16,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text("Create an account!", style: TextStyle(fontSize: 16.0)),

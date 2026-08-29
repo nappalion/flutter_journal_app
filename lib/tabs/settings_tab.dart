@@ -8,6 +8,7 @@ class SettingsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Column(
+        // only take up space needed
         mainAxisSize: MainAxisSize.min,
         children: [
           Text("Settings Tab"),
