@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-
-import 'dart:io';
 
 import '../screens/login_screen.dart';
 
@@ -19,18 +16,6 @@ class _SignupFormState extends State<SignupForm> {
   String password = "";
   String username = "";
   String errorMessage = "";
-  File? _profileImage;
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-
-    if (picked != null) {
-      setState(() {
-        _profileImage = File(picked.path);
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,19 +26,6 @@ class _SignupFormState extends State<SignupForm> {
         children: [
           if (errorMessage.isNotEmpty)
             Text("Error: $errorMessage", style: TextStyle(color: Colors.red)),
-          // Reference: https://medium.com/@mahipalsinhvala5609/build-an-image-picker-in-flutter-a203ffc99623
-          GestureDetector(
-            onTap: _pickImage,
-            child: CircleAvatar(
-              radius: 60,
-              backgroundImage: _profileImage != null
-                  ? FileImage(_profileImage!)
-                  : null,
-              child: _profileImage == null
-                  ? const Icon(Icons.add_a_photo, size: 40)
-                  : null,
-            ),
-          ),
           TextField(
             decoration: InputDecoration(labelText: "Email"),
             onChanged: (value) {
@@ -79,6 +51,7 @@ class _SignupFormState extends State<SignupForm> {
             },
             obscureText: true,
           ),
+
           ElevatedButton(
             onPressed: () async {
               setState(() {
