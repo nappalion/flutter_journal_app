@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import "../tabs/journal_tab.dart";
-import "../tabs/logs_tab.dart";
+import "../tabs/entries_tab.dart";
 import "../tabs/settings_tab.dart";
 
 class MainScreen extends StatelessWidget {
@@ -26,7 +26,7 @@ class _BottomNavigationBarExampleState
   int _selectedIndex = 0;
 
   static const List<Widget> _widgetOptions = <Widget>[
-    LogsTab(),
+    EntriesTab(),
     JournalTab(),
     SettingsTab(),
   ];
@@ -45,7 +45,7 @@ class _BottomNavigationBarExampleState
       body: IndexedStack(index: _selectedIndex, children: _widgetOptions),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Logs'),
+          BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Entries'),
           BottomNavigationBarItem(icon: Icon(Icons.create), label: 'Journal'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),

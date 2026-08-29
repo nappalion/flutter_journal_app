@@ -9,12 +9,8 @@ class SettingsTab extends StatefulWidget {
   State<SettingsTab> createState() => _SettingsTabState();
 }
 
-class _SettingsTabState extends State<SettingsTab>
-    with AutomaticKeepAliveClientMixin {
+class _SettingsTabState extends State<SettingsTab> {
   late final Future<DocumentSnapshot> _userDoc;
-
-  @override
-  bool get wantKeepAlive => true;
 
   @override
   void initState() {
@@ -27,7 +23,6 @@ class _SettingsTabState extends State<SettingsTab>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // required when using AutomaticKeepAliveClientMixin
     return Center(
       child: Column(
         // only take up space needed
