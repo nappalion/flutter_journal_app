@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_journal_app/screens/edit_screen.dart';
 import 'package:intl/intl.dart';
 
 class EntriesTab extends StatefulWidget {
@@ -50,15 +51,17 @@ class _EntriesTabState extends State<EntriesTab> {
             return Center(child: CircularProgressIndicator());
           }
           final journalEntries =
-              snapshot.data?.docs
-                  .map((doc) => doc.data() as Map<String, dynamic>)
-                  .toList() ??
-              [];
+              snapshot.data?.docs.map((doc) {
+                final data = doc.data() as Map<String, dynamic>;
+                return {...data, "id": doc.id};
+              }).toList() ??
+                  [];
 
           return journalEntries.isEmpty
               ? const Center(child: Text("No journal entries found"))
               : ListView(
                   children: journalEntries.map((entry) {
+                    final id = entry["id"];
                     final message = entry["message"] ?? "";
                     final createdAt = entry["createdAt"] ?? Timestamp.now();
                     return Card(
@@ -71,6 +74,9 @@ class _EntriesTabState extends State<EntriesTab> {
                         borderRadius: BorderRadius.zero,
                       ),
                       child: ListTile(
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => EditScreen(message: message, id: id,)));
+                        },
                         title: Text(message),
                         subtitle: Text(
                           DateFormat("MMM d, y 'at' h:mm a")
