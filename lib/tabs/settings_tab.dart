@@ -11,7 +11,6 @@ class SettingsTab extends StatefulWidget {
 
 class _SettingsTabState extends State<SettingsTab> {
   late final Future<DocumentSnapshot> _userDoc;
-
   @override
   void initState() {
     super.initState();
@@ -27,6 +26,7 @@ class _SettingsTabState extends State<SettingsTab> {
       child: Column(
         // only take up space needed
         mainAxisSize: MainAxisSize.min,
+        spacing: 16,
         children: [
           FutureBuilder<DocumentSnapshot>(
             future: _userDoc,
@@ -39,7 +39,7 @@ class _SettingsTabState extends State<SettingsTab> {
                 return Text("Hello, Guest");
               } else {
                 final data = snapshot.data!.data() as Map<String, dynamic>;
-                return Text("Hello, ${data['username'] ?? 'User'}");
+                return Text("Hello, ${data['username'] ?? 'User'}!");
               }
             },
           ),

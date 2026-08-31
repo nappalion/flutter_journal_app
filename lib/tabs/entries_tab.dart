@@ -29,6 +29,10 @@ class _EntriesTabState extends State<EntriesTab> {
     )];
   }
 
+  void _deleteEntry(String id) {
+    FirebaseFirestore.instance.collection("journal").doc(id).delete();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,26 +68,31 @@ class _EntriesTabState extends State<EntriesTab> {
                     final id = entry["id"];
                     final message = entry["message"] ?? "";
                     final createdAt = entry["createdAt"] ?? Timestamp.now();
-                    return Card(
-                      color: _randomStickyColor(),
-                      margin: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 12,
+                    return Stack(children: [
+                      Card(
+                          color: _randomStickyColor(),
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 12,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.zero,
+                          ),
+                          child: Padding(padding: EdgeInsetsGeometry.only(top: 24, bottom: 16), child: ListTile(
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => EditScreen(message: message, id: id,)));
+                            },
+                            title: Text(message),
+                            subtitle: Text(
+                              DateFormat("MMM d, y 'at' h:mm a")
+                                  .format(createdAt.toDate()),
+                            ),
+                          ),)
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                      ),
-                      child: ListTile(
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => EditScreen(message: message, id: id,)));
-                        },
-                        title: Text(message),
-                        subtitle: Text(
-                          DateFormat("MMM d, y 'at' h:mm a")
-                              .format(createdAt.toDate()),
-                        ),
-                      ),
-                    );
+                      Positioned(top: 18, right: 18, child: IconButton(onPressed: () {
+                        _deleteEntry(id);
+                      }, icon: Icon(Icons.close, size: 18)))
+                    ],);
                   }).toList(),
                 );
         },

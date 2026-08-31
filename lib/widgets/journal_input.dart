@@ -24,7 +24,7 @@ class _JournalInputState extends State<JournalInput> {
     "How was your day?",
   ];
   String _messageText = '';
-  late String _lastSavedMessage;
+  String _lastSavedMessage = '';
 
   @override
   void initState() {
