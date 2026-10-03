@@ -1,8 +1,7 @@
-import 'dart:math';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_journal_app/models/journal_entry.dart';
 import 'package:flutter_journal_app/screens/edit_screen.dart';
 import 'package:intl/intl.dart';
 
@@ -22,20 +21,23 @@ class EntriesTab extends StatefulWidget {
 class _EntriesTabState extends State<EntriesTab> {
   String? uid = FirebaseAuth.instance.currentUser?.uid;
 
-  Color _randomStickyColor() {
-    final random = Random();
-    return EntriesTab._stickyColors[random.nextInt(
-      EntriesTab._stickyColors.length,
-    )];
+  Color _stickyColorFor(String id) {
+    final index = id.hashCode.abs() % EntriesTab._stickyColors.length;
+    return EntriesTab._stickyColors[index];
+  }
+
+  String _createdAtLabel(Timestamp? createdAt) {
+    if (createdAt == null) {
+      return 'Just now';
+    }
+    return DateFormat("MMM d, y 'at' h:mm a").format(createdAt.toDate());
   }
 
   void _deleteEntry(String id) {
-    FirebaseFirestore.instance.collection("journal").doc(id).delete();
-  }
-
-  @override
-  void initState() {
-    super.initState();
+    FirebaseFirestore.instance
+        .collection(JournalEntry.collection)
+        .doc(id)
+        .delete();
   }
 
   @override
@@ -43,9 +45,9 @@ class _EntriesTabState extends State<EntriesTab> {
     return Scaffold(
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
-            .collection("journal")
-            .where("userId", isEqualTo: uid)
-            .orderBy("createdAt", descending: true) // newest first
+            .collection(JournalEntry.collection)
+            .where(JournalEntry.fieldUserId, isEqualTo: uid)
+            .orderBy(JournalEntry.fieldCreatedAt, descending: true) // newest first
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.hasError) {
@@ -55,22 +57,15 @@ class _EntriesTabState extends State<EntriesTab> {
             return Center(child: CircularProgressIndicator());
           }
           final journalEntries =
-              snapshot.data?.docs.map((doc) {
-                final data = doc.data() as Map<String, dynamic>;
-                return {...data, "id": doc.id};
-              }).toList() ??
-                  [];
+              snapshot.data?.docs.map(JournalEntry.fromDoc).toList() ?? [];
 
           return journalEntries.isEmpty
               ? const Center(child: Text("No journal entries found"))
               : ListView(
                   children: journalEntries.map((entry) {
-                    final id = entry["id"];
-                    final message = entry["message"] ?? "";
-                    final createdAt = entry["createdAt"] ?? Timestamp.now();
                     return Stack(children: [
                       Card(
-                          color: _randomStickyColor(),
+                          color: _stickyColorFor(entry.id),
                           margin: const EdgeInsets.symmetric(
                             horizontal: 12,
                             vertical: 12,
@@ -80,17 +75,14 @@ class _EntriesTabState extends State<EntriesTab> {
                           ),
                           child: Padding(padding: EdgeInsetsGeometry.only(top: 24, bottom: 16), child: ListTile(
                             onTap: () {
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => EditScreen(message: message, id: id,)));
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => EditScreen(message: entry.message, id: entry.id,)));
                             },
-                            title: Text(message),
-                            subtitle: Text(
-                              DateFormat("MMM d, y 'at' h:mm a")
-                                  .format(createdAt.toDate()),
-                            ),
+                            title: Text(entry.message),
+                            subtitle: Text(_createdAtLabel(entry.createdAt)),
                           ),)
                       ),
                       Positioned(top: 18, right: 18, child: IconButton(onPressed: () {
-                        _deleteEntry(id);
+                        _deleteEntry(entry.id);
                       }, icon: Icon(Icons.close, size: 18)))
                     ],);
                   }).toList(),
