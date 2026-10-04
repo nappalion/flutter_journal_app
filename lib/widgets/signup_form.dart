@@ -5,6 +5,8 @@ import '../screens/login_screen.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'auth_layout.dart';
+
 class SignupForm extends StatefulWidget {
   const SignupForm({super.key});
 
@@ -18,107 +20,177 @@ class _SignupFormState extends State<SignupForm> {
   String password = "";
   String username = "";
   String errorMessage = "";
+  bool _obscurePassword = true;
+  bool _isLoading = false;
+
+  Future<void> _submit() async {
+    setState(() {
+      errorMessage = "";
+    });
+
+    if (email.isEmpty || password.isEmpty || username.isEmpty) {
+      setState(() {
+        errorMessage = "Please fill in all fields.";
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      UserCredential credential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: email,
+            password: password,
+          );
+
+      final user = credential.user;
+      if (user == null) {
+        setState(() {
+          errorMessage = "Failed to create account.";
+          _isLoading = false;
+        });
+        return;
+      }
+      await db.collection("users").doc(user.uid).set({
+        "username": username,
+        "createdAt": FieldValue.serverTimestamp(),
+      });
+
+      // Same StreamBuilder issue
+      if (!mounted) return;
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        setState(() {
+          errorMessage = 'The password provided is too weak.';
+          _isLoading = false;
+        });
+      } else if (e.code == 'email-already-in-use') {
+        setState(() {
+          errorMessage = 'The account already exists for that email.';
+          _isLoading = false;
+        });
+      } else {
+        setState(() {
+          errorMessage = 'An error occurred. Please try again.';
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        errorMessage = 'An error occurred. Please try again.';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: Column(
-        spacing: 16,
-        children: [
-          if (errorMessage.isNotEmpty)
-            Text("Error: $errorMessage", style: TextStyle(color: Colors.red)),
-          TextField(
-            decoration: InputDecoration(labelText: "Email"),
-            onChanged: (value) {
-              setState(() {
-                email = value;
-              });
-            },
-          ),
-          TextField(
-            decoration: InputDecoration(labelText: "Username"),
-            onChanged: (value) {
-              setState(() {
-                username = value;
-              });
-            },
-          ),
-          TextField(
-            decoration: InputDecoration(labelText: "Password"),
-            onChanged: (value) {
-              setState(() {
-                password = value;
-              });
-            },
-            obscureText: true,
-          ),
-
-          ElevatedButton(
-            onPressed: () async {
-              setState(() {
-                errorMessage = "";
-              });
-
-              if (email.isEmpty || password.isEmpty || username.isEmpty) {
-                setState(() {
-                  errorMessage = "Please fill in all fields.";
-                });
-                return;
-              }
-
-              try {
-                UserCredential credential = await FirebaseAuth.instance
-                    .createUserWithEmailAndPassword(
-                      email: email,
-                      password: password,
-                    );
-
-                final user = credential.user;
-                if (user == null) {
-                  setState(() {
-                    errorMessage = "Failed to create account.";
-                  });
-                  return;
-                }
-                await db.collection("users").doc(user.uid).set({
-                  "username": username,
-                  "createdAt": FieldValue.serverTimestamp(),
-                });
-
-                // Same StreamBuilder issue
-                if (context.mounted) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              } on FirebaseAuthException catch (e) {
-                if (e.code == 'weak-password') {
-                  setState(() {
-                    errorMessage = 'The password provided is too weak.';
-                  });
-                } else if (e.code == 'email-already-in-use') {
-                  setState(() {
-                    errorMessage = 'The account already exists for that email.';
-                  });
-                }
-              } catch (e) {
-                setState(() {
-                  errorMessage = 'An error occurred. Please try again.';
-                });
-              }
-            },
-            child: Text("Sign Up"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-              );
-            },
-            child: Text("Already have an account? Log In"),
-          ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (errorMessage.isNotEmpty) ...[
+          AuthErrorBanner(message: errorMessage),
+          const SizedBox(height: 16),
         ],
-      ),
+        TextField(
+          textInputAction: TextInputAction.next,
+          textCapitalization: TextCapitalization.words,
+          autofillHints: const [AutofillHints.username],
+          decoration: authInputDecoration(
+            label: "Username",
+            icon: Icons.person_outline,
+          ),
+          onChanged: (value) {
+            setState(() {
+              username = value;
+            });
+          },
+        ),
+        const SizedBox(height: 14),
+        TextField(
+          keyboardType: TextInputType.emailAddress,
+          textInputAction: TextInputAction.next,
+          autocorrect: false,
+          textCapitalization: TextCapitalization.none,
+          autofillHints: const [AutofillHints.email],
+          decoration: authInputDecoration(
+            label: "Email",
+            icon: Icons.mail_outline,
+          ),
+          onChanged: (value) {
+            setState(() {
+              email = value;
+            });
+          },
+        ),
+        const SizedBox(height: 14),
+        TextField(
+          obscureText: _obscurePassword,
+          textInputAction: TextInputAction.done,
+          autofillHints: const [AutofillHints.newPassword],
+          onSubmitted: (_) => _submit(),
+          decoration: authInputDecoration(
+            label: "Password",
+            icon: Icons.lock_outline,
+            suffixIcon: IconButton(
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
+              icon: Icon(
+                _obscurePassword
+                    ? Icons.visibility_outlined
+                    : Icons.visibility_off_outlined,
+                color: AuthColors.muted,
+              ),
+            ),
+          ),
+          onChanged: (value) {
+            setState(() {
+              password = value;
+            });
+          },
+        ),
+        const SizedBox(height: 24),
+        AuthPrimaryButton(
+          label: "Create account",
+          isLoading: _isLoading,
+          onPressed: _submit,
+        ),
+        const SizedBox(height: 8),
+        TextButton(
+          onPressed: _isLoading
+              ? null
+              : () {
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                },
+          child: Text.rich(
+            TextSpan(
+              text: "Already have an account? ",
+              style: const TextStyle(color: AuthColors.muted),
+              children: [
+                TextSpan(
+                  text: "Log in",
+                  style: const TextStyle(
+                    color: AuthColors.sage,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
