@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import "../widgets/auth_layout.dart";
 import "../widgets/signup_form.dart";
 
 class SignupScreen extends StatelessWidget {
@@ -7,19 +8,10 @@ class SignupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Sign Up')),
-      body: SafeArea(
-        child: const Column(
-          spacing: 16,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Create an account!", style: TextStyle(fontSize: 16.0)),
-            SignupForm(),
-            // Add signup form widgets here
-          ],
-        ),
-      ),
+    return const AuthLayout(
+      title: "Start journaling",
+      subtitle: "Create an account to save your thoughts in one quiet place.",
+      form: SignupForm(),
     );
   }
 }

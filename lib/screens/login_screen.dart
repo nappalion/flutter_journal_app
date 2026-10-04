@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import "../widgets/auth_layout.dart";
 import "../widgets/login_form.dart";
 
 class LoginScreen extends StatelessWidget {
@@ -7,17 +8,10 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Log In')),
-      body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("Welcome back!", style: TextStyle(fontSize: 16.0)),
-            LoginForm(),
-          ],
-        ),
-      ),
+    return const AuthLayout(
+      title: "Welcome back",
+      subtitle: "Log in to keep writing — your entries are waiting.",
+      form: LoginForm(),
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import "package:flutter_journal_app/screens/login_screen.dart";
+import "package:flutter_journal_app/widgets/auth_layout.dart";
 
 import "signup_screen.dart";
 
@@ -9,6 +10,7 @@ class LandingScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AuthColors.paper,
       body: Stack(
         children: [
           Positioned(
@@ -22,39 +24,74 @@ class LandingScreen extends StatelessWidget {
           ),
           SafeArea(
             child: Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 32.0),
-                    child: Text(
-                      "Journaling Simplified 🌸",
-                      style: TextStyle(fontSize: 24.0),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🌸', style: TextStyle(fontSize: 28)),
+                    const SizedBox(height: 12),
+                    const Text(
+                      "Journaling simplified",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 28,
+                        fontWeight: FontWeight.w700,
+                        color: AuthColors.ink,
+                        height: 1.2,
+                      ),
                     ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const SignupScreen(),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "A quiet place for whatever is on your mind.",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AuthColors.muted,
+                        height: 1.4,
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                    AuthPrimaryButton(
+                      label: "Create an account",
+                      isLoading: false,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignupScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginScreen(),
+                          ),
+                        );
+                      },
+                      child: Text.rich(
+                        TextSpan(
+                          text: "Already have an account? ",
+                          style: const TextStyle(color: AuthColors.muted),
+                          children: [
+                            TextSpan(
+                              text: "Log in",
+                              style: const TextStyle(
+                                color: AuthColors.sage,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
                         ),
-                      );
-                    },
-                    child: const Text("Create an account to start journaling"),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const LoginScreen(),
-                        ),
-                      );
-                    },
-                    child: Text("Already have an account? Login"),
-                  ),
-                ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
