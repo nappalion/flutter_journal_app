@@ -6,6 +6,7 @@ import '../screens/login_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'auth_layout.dart';
+import 'emoji_picker.dart';
 
 class SignupForm extends StatefulWidget {
   const SignupForm({super.key});
@@ -22,6 +23,7 @@ class _SignupFormState extends State<SignupForm> {
   String errorMessage = "";
   bool _obscurePassword = true;
   bool _isLoading = false;
+  String _emoji = ProfileEmoji.fallback;
 
   Future<void> _submit() async {
     setState(() {
@@ -56,6 +58,7 @@ class _SignupFormState extends State<SignupForm> {
       }
       await db.collection("users").doc(user.uid).set({
         "username": username,
+        ProfileEmoji.field: _emoji,
         "createdAt": FieldValue.serverTimestamp(),
       });
 
@@ -107,6 +110,16 @@ class _SignupFormState extends State<SignupForm> {
           onChanged: (value) {
             setState(() {
               username = value;
+            });
+          },
+        ),
+        const SizedBox(height: 14),
+        EmojiField(
+          emoji: _emoji,
+          enabled: !_isLoading,
+          onChanged: (value) {
+            setState(() {
+              _emoji = value;
             });
           },
         ),

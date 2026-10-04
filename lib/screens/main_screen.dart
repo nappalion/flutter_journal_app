@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import "../tabs/journal_tab.dart";
 import "../tabs/entries_tab.dart";
-import "../tabs/settings_tab.dart";
+import "../tabs/profile_tab.dart";
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -28,7 +28,7 @@ class _BottomNavigationBarExampleState
   static const List<Widget> _widgetOptions = <Widget>[
     EntriesTab(),
     JournalTab(),
-    SettingsTab(),
+    ProfileTab(),
   ];
 
   void _onItemTapped(int index) {
@@ -48,8 +48,8 @@ class _BottomNavigationBarExampleState
           BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Entries'),
           BottomNavigationBarItem(icon: Icon(Icons.create), label: 'Journal'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
+            icon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
         currentIndex: _selectedIndex,
